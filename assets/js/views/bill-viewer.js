@@ -25,7 +25,8 @@
 
   /** Save the QR as a PNG (for paying from the same phone via "scan from gallery"). */
   function saveQR(b, amount) {
-    if (D.QR.image) { const a = document.createElement('a'); a.href = D.QR.image; a.download = `DESCO-QR-${b.no}.png`; a.click(); return; }
+    const file = D.QR.card || D.QR.image;
+    if (file) { const a = document.createElement('a'); a.href = file; a.download = `DESCO-QR-${b.no}${file.slice(file.lastIndexOf('.'))}`; a.click(); return; }
     const svg = D.qrSVG(D.QR.payload(b, amount)).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="560" height="560" ');
     const img = new Image();
     img.onload = () => {
@@ -311,22 +312,24 @@
     doc.querySelectorAll('img').forEach((img) => img.addEventListener('load', () => { last = ''; applyFit(); }, { once: true }));
     applyFit();
 
+    /** Scan-to-pay: the Bangla QR card and the amount to enter. */
+    function openScan() {
+      const qr = D.QR.card
+        ? `<img src="${D.QR.card}" alt="Bangla QR — scan and pay DESCO" class="qr-card mx-auto block h-auto rounded-xl border border-line shadow-card" draggable="false">`
+        : `<div class="qr-card mx-auto rounded-xl border border-line bg-white p-5 shadow-card">${D.qrMarkup(b, s.balance, 'block h-auto w-full')}</div>`;
+      UI.modal({
+        title: t('Scan to pay'), subtitle: `${U.monthLabel(b.month)} · ${t('Bill no.')} <span class="num">${b.no}</span>`, size: 'sm',
+        body: `${qr}
+          <p class="mt-4 text-center text-[13px] text-ink-2">${t(D.QR.image ? 'Enter this amount in your app' : 'Amount to pay')}: <b class="num text-lg text-ink">${U.tk(s.balance)}</b></p>
+          <p class="mt-1 text-center text-[11px] text-ink-3">${t('Hold your phone 15–25 cm from the screen and turn up screen brightness.')}</p>`,
+      });
+    }
+
     el.addEventListener('click', (e) => {
       const btn = e.target.closest('button');
       if (!btn) return;
-      if (btn.hasAttribute('data-qr')) {
-        UI.modal({
-          title: t('Scan to pay'), subtitle: `${U.monthLabel(b.month)} · ${t('Bill no.')} <span class="num">${b.no}</span>`, size: 'sm',
-          body: `<div class="mx-auto w-full max-w-[340px] rounded-xl border border-line bg-white p-5 shadow-card">${D.qrMarkup(b, s.balance, 'block h-auto w-full')}</div>
-            <div class="mt-4 text-center">
-              <div class="text-xs text-ink-3">${t(D.QR.image ? 'Enter this amount in your app' : 'Amount to pay')}</div>
-              <div class="num text-3xl font-semibold">${U.tk(s.balance)}</div>
-              <div class="mt-1 text-xs text-ink-3">${t('Same QR as printed on your bill')}</div>
-            </div>
-            <p class="mt-4 flex items-start gap-2 rounded-md bg-surface-2 px-3 py-2.5 text-xs text-ink-2">${UI.icon('info', 'mt-0.5 h-4 w-4 shrink-0 text-brand')}${t('Hold your phone 15–25 cm from the screen and turn up screen brightness.')}</p>`,
-          footer: `<button class="btn btn-secondary" data-close>${t('Close')}</button>`,
-        });
-      } else if (btn.hasAttribute('data-pdf')) D.downloadBill(b);
+      if (btn.hasAttribute('data-qr')) openScan();
+      else if (btn.hasAttribute('data-pdf')) D.downloadBill(b);
       else if (btn.hasAttribute('data-saveqr')) { saveQR(b, s.balance); UI.toast(t('QR saved'), { sub: t('Open your app and choose “scan from gallery”.') }); }
     });
   };

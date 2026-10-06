@@ -190,6 +190,10 @@ img, video { max-width: 100%; height: auto; }
 }
 .menu-item:hover { background-color: rgb(var(--c-surface-2)); }
 
+/* ---------- Bangla QR card (scan modal) ----------
+   As large as fits: up to 340px wide, shrinking with window height so the modal never scrolls (card is 635×980) */
+.qr-card { width: min(100%, 340px, calc((100vh - 232px) * .648)); }
+
 /* ---------- Key–value lists ---------- */
 .kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 1rem; row-gap: .625rem; font-size: 13px; }
 .kv dt { color: rgb(var(--c-ink-3)); }

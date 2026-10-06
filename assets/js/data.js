@@ -19,6 +19,7 @@
    *  dynamic Bangla QR (EMVCo) string issued by the acquirer for DESCO's merchant ID [PLACEHOLDER_MERCHANT_ID]. */
   D.QR = {
     image: 'assets/img/qr.png', // static QR shown on every bill; set to null to generate a per-bill QR from payload()
+    card: 'assets/img/bangla-qr.jpg', // full Bangla QR card shown when the customer opens the QR to scan
     payload: (b, amount) => `https://payments.example/desco/bill?no=${b.no}&acc=${b.account}&amt=${amount}`,
     apps: ['bKash', 'Nagad', 'Rocket', 'Upay', 'Bank apps'],
   };
