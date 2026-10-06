@@ -5,6 +5,8 @@
   const v = (name) => `rgb(var(--c-${name}) / <alpha-value>)`;
 
   tailwind.config = {
+    // Base reset lives in assets/css/components.css so component classes sit between it and the utilities
+    corePlugins: { preflight: false },
     theme: {
       extend: {
         colors: {

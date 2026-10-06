@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DESCO Customer Portal</title>
+  <meta name="description" content="View, download and pay your DESCO electricity bills.">
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="assets/js/tailwind.config.js"></script>
+  <style type="text/tailwindcss">
+    @layer base {
+      html { -webkit-tap-highlight-color: transparent; }
+      ::selection { background: rgb(var(--c-brand) / .16); }
+      :focus-visible { outline: 2px solid rgb(var(--c-brand)); outline-offset: 2px; }
+      [hidden] { display: none !important; }
+    }
+    @layer components {
+      .btn { @apply inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-md h-9 px-3.5 text-[13px] font-medium leading-none transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50; }
+      .btn svg { @apply h-4 w-4 shrink-0; }
+      .btn-primary { @apply bg-brand text-white shadow-sm hover:bg-brand-700 active:bg-brand-800; }
+      .btn-danger { @apply bg-accent text-white shadow-sm hover:bg-accent-700; }
+      .btn-secondary { @apply border border-line-strong bg-surface text-ink shadow-sm hover:border-ink-3/50 hover:bg-surface-2; }
+      .btn-ghost { @apply text-ink-2 hover:bg-ink/5 hover:text-ink; }
+      .btn-sm { @apply h-8 px-2.5 text-xs; }
+      .btn-xs { @apply h-7 gap-1.5 px-2 text-xs; }
+      .btn-icon { @apply w-9 px-0; }
+      .btn-sm.btn-icon { @apply w-8; }
+      .btn-xs.btn-icon { @apply w-7; }
+      .card { @apply rounded-lg border border-line bg-surface shadow-card; }
+      .card-head { @apply flex min-h-[3rem] items-center justify-between gap-3 border-b border-line px-5 py-2.5; }
+      .card-title { @apply text-[13px] font-semibold tracking-tight text-ink; }
+      .card-body { @apply p-5; }
+      .eyebrow { @apply text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-3; }
+      .page-title { @apply text-[22px] font-semibold leading-tight tracking-tight text-ink sm:text-2xl; }
+      .num { @apply font-mono tabular-nums tracking-tight; }
+      .link { @apply font-medium text-brand underline-offset-2 hover:underline; }
+      .field-label { @apply mb-1.5 block text-xs font-medium text-ink-2; }
+      .input { @apply h-9 w-full rounded-md border border-line-strong bg-surface px-3 text-[13px] text-ink transition-shadow placeholder:text-ink-3 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10; }
+      .input[aria-invalid=true] { @apply border-danger focus:ring-danger/10; }
+      .select { @apply h-9 w-full cursor-pointer appearance-none rounded-md border border-line-strong bg-surface bg-[length:16px] bg-[right_0.6rem_center] bg-no-repeat pl-3 pr-8 text-[13px] text-ink focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23767C91' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+      .checkbox { @apply h-4 w-4 cursor-pointer rounded-sm accent-brand; }
+      .field-error { @apply mt-1.5 text-xs font-medium text-danger; }
+      .badge { @apply inline-flex h-[22px] items-center gap-1.5 whitespace-nowrap rounded-sm px-2 text-[11px] font-semibold; }
+      .badge::before { content: ''; @apply h-1.5 w-1.5 shrink-0 rounded-full bg-current; }
+      .badge-plain::before { display: none; }
+      .badge-ok { @apply bg-ok-soft text-ok; }
+      .badge-warn { @apply bg-warn-soft text-warn; }
+      .badge-danger { @apply bg-danger-soft text-danger; }
+      .badge-info { @apply bg-info-soft text-info; }
+      .badge-violet { @apply bg-violet-soft text-violet; }
+      .badge-neutral { @apply bg-surface-3 text-ink-2; }
+      .tbl { @apply w-full border-separate border-spacing-0 text-[13px]; }
+      .tbl thead th { @apply sticky top-0 z-10 h-10 whitespace-nowrap border-b border-line bg-surface-2 px-4 text-left text-[10.5px] font-semibold uppercase tracking-[0.1em] text-ink-3; }
+      .tbl tbody td { @apply h-[52px] whitespace-nowrap border-b border-line px-4 align-middle; }
+      .tbl tbody tr { @apply transition-colors; }
+      .tbl tbody tr:hover { @apply bg-brand-50/60; }
+      .tbl tbody tr[aria-selected=true] { @apply bg-brand-50; }
+      .tbl tbody tr:last-child td { @apply border-b-0; }
+      .tbl .r { @apply text-right; }
+      .tbl-compact tbody td { @apply h-11; }
+      .seg { @apply inline-flex rounded-md border border-line-strong bg-surface p-0.5; }
+      .seg > button { @apply h-7 rounded-[4px] px-2.5 text-xs font-medium text-ink-2 hover:text-ink; }
+      .seg > button[aria-pressed=true] { @apply bg-brand text-white; }
+      .chip { @apply inline-flex h-8 items-center gap-2 whitespace-nowrap rounded-full border border-line-strong bg-surface pl-3 pr-1.5 text-xs font-medium text-ink-2 transition-colors hover:border-brand/40 hover:text-ink; }
+      .chip .chip-count { @apply num rounded-full bg-surface-3 px-1.5 py-0.5 text-[11px] text-ink-2; }
+      .chip[aria-pressed=true] { @apply border-brand bg-brand text-white; }
+      .chip[aria-pressed=true] .chip-count { @apply bg-white/15 text-white; }
+      .tnav { @apply inline-flex h-9 items-center gap-2 rounded-md px-3 text-[13px] font-medium text-ink-2 transition-colors hover:bg-ink/5 hover:text-ink; }
+      .tnav svg { @apply h-4 w-4; }
+      .tnav[aria-current=page] { @apply bg-brand-50 text-brand; }
+      .menu { @apply card absolute right-0 top-11 z-40 w-72 max-w-[calc(100vw-1.5rem)] overflow-hidden shadow-pop; }
+      .menu-item { @apply flex w-full items-center gap-3 px-4 py-2.5 text-left text-[13px] text-ink hover:bg-surface-2; }
+      :lang(bn) .eyebrow, :lang(bn) .tbl thead th { @apply normal-case tracking-normal text-[11.5px]; }
+      :lang(bn) body { @apply font-bn; }
+      .kv { @apply grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-2.5 text-[13px]; }
+      .kv dt { @apply text-ink-3; }
+      .kv dd { @apply text-right font-medium text-ink; }
+    }
+  </style>
+  <script>tailwind.config.corePlugins = {};</script>
+</head>
+
+<body class="min-h-screen bg-paper font-sans text-ink antialiased">
+  <a href="#view" class="sr-only z-[80] rounded-md bg-brand px-3 py-2 text-white focus:not-sr-only focus:fixed focus:left-3 focus:top-3">Skip to content</a>
+
+  <!-- Sign-in renders here when there is no session -->
+  <div id="auth-root"></div>
+
+  <div id="shell" hidden>
+    <header class="sticky top-0 z-30 border-b border-line bg-surface/90 backdrop-blur-md">
+      <div class="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:px-6">
+        <a href="#/dashboard" class="flex shrink-0 items-center gap-3" aria-label="DESCO">
+          <img src="assets/img/logo-desco.svg" alt="DESCO — Power is yours" class="h-6 w-auto sm:h-7">
+          <span class="hidden h-7 w-px bg-line sm:block"></span>
+          <span class="hidden text-[13px] font-semibold sm:block" data-t="Customer Portal">Customer Portal</span>
+        </a>
+        <nav id="topnav" class="ml-6 hidden items-center gap-1 md:flex" aria-label="Main"></nav>
+        <div class="ml-auto flex items-center gap-2">
+          <div class="seg" role="group" aria-label="Language / ভাষা">
+            <button data-lang="en" lang="en">EN</button>
+            <button data-lang="bn" lang="bn" class="font-bn">বাংলা</button>
+          </div>
+          <div id="user-menu" class="relative"></div>
+        </div>
+      </div>
+      <nav id="tabnav" class="mx-auto grid max-w-6xl grid-cols-2 gap-1 px-4 pb-2 md:hidden" aria-label="Main"></nav>
+    </header>
+
+    <main id="view" tabindex="-1" class="outline-none"></main>
+
+    <footer class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 border-t border-line px-4 py-6 text-xs text-ink-3 sm:px-6">
+      <span data-t="© Dhaka Electricity Supply PLC · Hotline <b class='num text-ink-2'>16120</b>">© Dhaka Electricity Supply PLC · Hotline <b class="num text-ink-2">16120</b></span>
+      <span class="flex items-center gap-2"><span data-icon="shield" class="h-3.5 w-3.5 text-ok"></span><span data-t="DESCO never asks for your OTP or PIN.">DESCO never asks for your OTP or PIN.</span></span>
+    </footer>
+  </div>
+
+  <div id="modal-root"></div>
+  <div id="toast-root" class="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-[min(24rem,calc(100vw-2rem))] flex-col gap-2" aria-live="polite"></div>
+  <div id="tooltip" class="rounded-md bg-brand-950 px-2.5 py-1.5 text-xs text-white shadow-pop"></div>
+  <div id="print-root"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/views/login.js"></script>
+  <script src="assets/js/views/dashboard.js"></script>
+  <script src="assets/js/views/bills.js"></script>
+  <script src="assets/js/views/bill-viewer.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
