@@ -1,0 +1,5 @@
+.DS_Store
+
+# Real customer bill scan — kept local only (contains personal data)
+assets/bill.pdf
+assets/img/bill-copy.jpg

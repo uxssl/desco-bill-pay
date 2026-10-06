@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "desco-dbm", "runtimeExecutable": "node", "runtimeArgs": [".claude/serve.mjs"], "port": 5178 }
+  ]
+}
