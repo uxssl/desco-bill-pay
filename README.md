@@ -23,8 +23,9 @@ Open <http://127.0.0.1:5178>. **Demo build: no validation** — any mobile numbe
 ## Structure
 
 ```
-index.html                    Shell + Tailwind component layer
+index.html                    Page shell (markup only — no inline CSS)
 assets/css/tokens.css         Design tokens, bill styles, print
+assets/css/components.css     Base reset + component classes (buttons, cards, forms, badges, tables, nav)
 assets/js/i18n.js             English/Bangla strings, Bangla digits, dates
 assets/js/data.js             Tariff, QR config, demo data (incl. bill-copy account)
 assets/js/store.js            Session (mobile number), bill status, payment confirmation
@@ -40,4 +41,4 @@ assets/js/app.js              Router, auth guard, language toggle, idle sign-out
 - **Privacy:** `assets/bill.pdf` and `assets/img/bill-copy.jpg` contain a real customer’s details, so they are git-ignored and not in the repo. Supply your own (redacted) bill scan at that path to run the demo; the bill-copy account in `data.js` uses fictional details.
 - **Sign-in:** validation is switched off for the demo (`views/login.js`). Production must validate the mobile number and generate, send, expire and rate-limit OTPs on the server.
 - **QR:** use the acquirer-issued Bangla QR (EMVCo) with DESCO’s merchant ID `[PLACEHOLDER_MERCHANT_ID]`, ideally dynamic per bill with the amount. Mark bills paid only after the server validates the gateway confirmation (IPN).
-- **Tailwind:** replace the CDN runtime with a compiled build.
+- **Tailwind:** replace the CDN runtime with a compiled build (keep `corePlugins.preflight: false`; the reset is in `components.css`).
