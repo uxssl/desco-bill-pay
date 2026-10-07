@@ -50,11 +50,12 @@
 
   /** Full bill document markup (also used for thumbnails and printing). */
   /** Bills that come as a scanned copy: shown exactly as issued, payment QR placed over the printed QR. */
-  // % of the scan, measured on bill-copy.jpg: the largest square that fits the printed QR's slot — between the top edge
-  // and the Tariff box line, right-aligned with the printed QR — so no bill text is covered. Click opens it full size.
-  const COPY_QR_BOX = { left: 76.27, top: 0.48, width: 5.47, height: 7.8 };
+  // % of the scan, measured on bill-copy.jpg: covers the QR in the scan (≈ x 1523–1643, y 0–120 px) — from the top edge
+  // down to the Tariff box's top rule (y 121), sitting on it, clear of "Hotline" and "(Office Copy)". Click opens it full size.
+  const COPY_QR_BOX = { left: 76.08, top: 0, width: 6.12, height: 8.64 };
   function billCopyHTML(b, live) {
-    const box = `left:${COPY_QR_BOX.left}%;top:${COPY_QR_BOX.top}%;width:${COPY_QR_BOX.width}%;height:${COPY_QR_BOX.height}%`;
+    const q = COPY_QR_BOX;
+    const box = `left:${q.left}%;top:${q.top}%;width:${q.width}%;height:${q.height}%`;
     const qr = `<img src="${D.QR.image}" alt="" draggable="false">`;
     return `
       <article class="bill-copy" aria-label="Electricity bill ${b.no}">
