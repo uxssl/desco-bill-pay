@@ -104,6 +104,8 @@ img, video { max-width: 100%; height: auto; }
   font-family: "IBM Plex Mono", "Hind Siliguri", ui-monospace, SFMono-Regular, monospace;
   font-variant-numeric: tabular-nums; letter-spacing: -.025em;
 }
+/* Admin panel: numbers in the sans face with aligned (tabular) digits; reads better than mono in dense tables */
+.admin .num, .admin .chip .chip-count { font-family: "IBM Plex Sans", "Hind Siliguri", system-ui, sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 0; }
 .link { font-weight: 500; color: rgb(var(--c-brand)); text-underline-offset: 2px; }
 .link:hover { text-decoration-line: underline; }
 
@@ -155,6 +157,57 @@ img, video { max-width: 100%; height: auto; }
 .tbl tbody tr[aria-selected=true] { background-color: rgb(var(--c-brand-50)); }
 .tbl tbody tr:last-child td { border-bottom-width: 0; }
 .tbl .r { text-align: right; }
+
+/* ---------- Admin tables ----------
+   Edges line up with the card padding, two-line cells (.c-sub) share one style, rows that need action get
+   .is-attention. Under 768px a .tbl-stack table turns each row into a labelled card (td[data-label]):
+   .c-main is the card title, .c-actions sits at the bottom, .c-idx is hidden. */
+.admin .tbl thead th { height: 2.75rem; font-size: 10.5px; letter-spacing: .08em; }
+.admin .tbl th:first-child, .admin .tbl td:first-child { padding-left: 1.25rem; }
+.admin .tbl th:last-child, .admin .tbl td:last-child { padding-right: 1.25rem; }
+.admin .tbl tbody td { height: 3.75rem; padding-top: .5rem; padding-bottom: .5rem; }
+.admin .tbl tbody tr:hover { background-color: rgb(var(--c-surface-2)); }
+.admin .tbl .c-sub { margin-top: 2px; font-size: 11.5px; line-height: 1rem; color: rgb(var(--c-ink-3)); }
+.admin .tbl .c-idx { width: 2.5rem; font-size: 12px; color: rgb(var(--c-ink-3)); }
+.admin .tbl .c-actions { width: 1%; text-align: right; }
+.admin .tbl tbody tr.is-attention { background-color: rgb(var(--c-warn-soft) / .45); }
+.admin .tbl tbody tr.is-attention > td:first-child { box-shadow: inset 3px 0 0 rgb(var(--c-warn)); }
+/* Group heading row inside a table (e.g. a day in History) */
+.admin .tbl tbody tr.day td { height: auto; padding-top: .5rem; padding-bottom: .5rem; background-color: rgb(var(--c-surface-2)); font-size: 11.5px; font-weight: 600; color: rgb(var(--c-ink-2)); }
+.admin .tbl tbody tr.day:hover { background-color: transparent; }
+
+@media (max-width: 767px) {
+  .admin .tbl-stack thead { display: none; }
+  .admin .tbl-stack, .admin .tbl-stack tbody { display: block; width: 100%; }
+  .admin .tbl-stack tbody tr { display: flex; flex-direction: column; gap: .3rem; padding: .875rem 1rem; border-bottom: 1px solid rgb(var(--c-line)); }
+  .admin .tbl-stack tbody tr:last-child { border-bottom: 0; }
+  /* Label on the left, the value (one or more lines) stacked on the right */
+  .admin .tbl-stack tbody td {
+    display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 1rem; align-items: baseline;
+    height: auto; padding: 0 !important; border: 0; white-space: normal; text-align: right;
+  }
+  .admin .tbl-stack tbody td::before { content: attr(data-label); grid-row: 1 / span 4; font-size: 11.5px; color: rgb(var(--c-ink-3)); text-align: left; }
+  .admin .tbl-stack tbody td > * { grid-column: 2; justify-self: end; min-width: 0; max-width: 100%; }
+  .admin .tbl-stack tbody td .flex { justify-content: flex-end; }
+  .admin .tbl-stack tbody td.c-main { order: -1; display: block; margin-bottom: .2rem; text-align: left; font-size: 14px; }
+  .admin .tbl-stack tbody td.c-main > * { justify-self: start; }
+  .admin .tbl-stack tbody td.c-main::before, .admin .tbl-stack tbody td.c-actions::before { display: none; }
+  .admin .tbl-stack tbody td.c-idx { display: none; }
+  .admin .tbl-stack tbody td.c-actions { display: flex; width: auto; justify-content: flex-end; margin-top: .4rem; }
+  .admin .tbl-stack tbody td.c-actions:empty { display: none; }
+  .admin .tbl-stack tbody tr.is-attention > td:first-child { box-shadow: none; }
+  .admin .tbl-stack tbody tr.is-attention { box-shadow: inset 3px 0 0 rgb(var(--c-warn)); }
+  .admin .tbl-stack tbody tr.day { padding: 0; }
+  .admin .tbl-stack tbody tr.day td { display: block; padding: .5rem 1rem !important; text-align: left; }
+  .admin .tbl-stack tbody tr.day td::before { display: none; }
+}
+/* Sortable header: looks like the other header cells, the whole label is the click target */
+.sort-btn {
+  display: inline-flex; align-items: center; gap: .25rem; margin: 0 -.25rem; padding: .25rem; border-radius: var(--r-sm);
+  font: inherit; text-transform: inherit; letter-spacing: inherit; color: inherit; white-space: nowrap;
+}
+.sort-btn:hover, .tbl thead th[aria-sort] .sort-btn { color: rgb(var(--c-ink)); }
+.tbl thead th.r .sort-btn { margin-left: auto; }
 .tbl-compact tbody td { height: 2.75rem; }
 
 /* ---------- Segmented control & chips ---------- */
@@ -180,6 +233,15 @@ img, video { max-width: 100%; height: auto; }
 .tnav:hover { background-color: rgb(var(--c-ink) / .05); color: rgb(var(--c-ink)); }
 .tnav svg { width: 1rem; height: 1rem; }
 .tnav[aria-current=page] { background-color: rgb(var(--c-brand-50)); color: rgb(var(--c-brand)); }
+/* Admin sidebar (on brand-900) */
+.snav {
+  display: flex; align-items: center; gap: .75rem; height: 2.5rem; padding: 0 .75rem;
+  border-radius: var(--r-md); font-size: 13px; font-weight: 500; color: rgb(255 255 255 / .68);
+  transition: color 150ms, background-color 150ms;
+}
+.snav:hover { background-color: rgb(255 255 255 / .06); color: #fff; }
+.snav svg { width: 1.125rem; height: 1.125rem; }
+.snav[aria-current=page] { background-color: rgb(255 255 255 / .1); color: #fff; box-shadow: inset 3px 0 0 rgb(var(--c-accent)); }
 .menu {
   position: absolute; right: 0; top: 2.75rem; z-index: 40; width: 18rem; max-width: calc(100vw - 1.5rem);
   overflow: hidden; box-shadow: var(--sh-pop);

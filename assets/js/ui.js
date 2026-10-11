@@ -215,8 +215,8 @@
    * data: [{ label, values: [..], tip }] · series: [{ name, cls }]
    */
   const axisFmt = (v) => D.digits(v >= 1e7 ? `${+(v / 1e7).toFixed(1)}Cr` : v >= 1e5 ? `${+(v / 1e5).toFixed(1)}L` : v >= 1e3 ? `${+(v / 1e3).toFixed(0)}K` : `${v}`);
-  UI.columns = ({ data, series, height = 250, width = 600, fmt = axisFmt, line }) => {
-    const W = width; const H = height; const L = 40; const R = 6; const T = 12; const B = 26;
+  UI.columns = ({ data, series, height = 250, width = 600, fmt = axisFmt, line, left = 40 }) => {
+    const W = width; const H = height; const L = left; const R = 6; const T = 12; const B = 26;
     const max = niceMax(Math.max(...data.flatMap((d) => d.values)));
     const iw = W - L - R; const ih = H - T - B;
     const gw = iw / data.length;
@@ -298,6 +298,86 @@
     const r = typeof x === 'string' ? x.localeCompare(y) : x - y;
     return dir === 'asc' ? r : -r;
   });
+
+  /* ---------- QR ---------- */
+  /** Scannable QR as inline SVG. `ecl` error correction (H when a logo covers the centre), `quiet` margin in modules. */
+  D.qrSVG = (text, cls = '', { ecl = 'M', quiet = 4, fg = '#0a153e' } = {}) => {
+    if (typeof qrcode !== 'function') return `<svg viewBox="0 0 10 10" class="${cls}" role="img" aria-label="QR unavailable"><rect width="10" height="10" fill="#eee"/></svg>`;
+    const q = qrcode(0, ecl);
+    q.addData(text);
+    q.make();
+    const n = q.getModuleCount();
+    const m = n + quiet * 2;
+    let d = '';
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`;
+    return `<svg viewBox="-${quiet} -${quiet} ${m} ${m}" class="${cls}" shape-rendering="crispEdges" role="img" aria-label="Payment QR code"><rect x="-${quiet}" y="-${quiet}" width="${m}" height="${m}" fill="#fff"/><path d="${d}" fill="${fg}"/></svg>`;
+  };
+
+  /* The Bangla QR card design (D.QR.template) with a generated code in its QR box and the logo in the middle. */
+  const CARD_QR = { ecl: 'H', quiet: 2, fg: '#000' };
+  const pct = (v, of) => `${((v / of) * 100).toFixed(3)}%`;
+  D.qrCard = (text, cls = '') => {
+    const T = D.QR.template; const b = T.box;
+    return `
+      <div class="relative overflow-hidden ${cls}" style="aspect-ratio:${T.w}/${T.h}">
+        <img src="${T.image}" alt="Bangla QR — scan and pay DESCO" class="absolute inset-0 h-full w-full" draggable="false">
+        <div class="absolute bg-white" style="left:${pct(b.x, T.w)};top:${pct(b.y, T.h)};width:${pct(b.size, T.w)};height:${pct(b.size, T.h)}">
+          ${D.qrSVG(text, 'block h-full w-full', CARD_QR)}
+          <img src="${T.logo}" alt="" class="absolute" style="left:50%;top:50%;width:${T.logoRatio * 100}%;transform:translate(-50%,-50%)" draggable="false">
+        </div>
+      </div>`;
+  };
+
+  /** Download the QR card as a PNG, with optional text lines (amount, reference…) in a strip under the card. */
+  UI.qrCardPNG = ({ text, lines = [], file }) => {
+    const T = D.QR.template; const b = T.box; const k = 2;
+    const load = (src) => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = src; });
+    const svg = D.qrSVG(text, '', CARD_QR).replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" width="${b.size * k}" height="${b.size * k}" `);
+    const strip = lines.length ? 28 + lines.length * 32 : 0;
+    Promise.all([load(T.image), load(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`), load(T.logo)]).then(([card, qr, logo]) => {
+      const cv = document.createElement('canvas');
+      cv.width = T.w * k; cv.height = (T.h + strip) * k;
+      const g = cv.getContext('2d');
+      g.scale(k, k);
+      g.fillStyle = '#fff'; g.fillRect(0, 0, T.w, T.h + strip);
+      g.drawImage(card, 0, 0, T.w, T.h);
+      g.fillRect(b.x, b.y, b.size, b.size);
+      g.drawImage(qr, b.x, b.y, b.size, b.size);
+      const ls = b.size * T.logoRatio;
+      g.drawImage(logo, b.x + (b.size - ls) / 2, b.y + (b.size - ls) / 2, ls, ls);
+      g.textAlign = 'center';
+      lines.forEach((l, i) => {
+        g.fillStyle = i ? '#4a5168' : '#0a153e';
+        g.font = i ? '17px "IBM Plex Mono", monospace' : '600 26px "IBM Plex Sans", sans-serif';
+        g.fillText(l, T.w / 2, T.h + 30 + i * 32);
+      });
+      const a = document.createElement('a');
+      a.href = cv.toDataURL('image/png');
+      a.download = file;
+      a.click();
+    });
+  };
+
+  /** Download a QR as a PNG card: the code, a title line and a smaller detail line underneath. */
+  UI.qrPNG = ({ text, title, sub, file }) => {
+    const svg = D.qrSVG(text).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="560" height="560" ');
+    const img = new Image();
+    img.onload = () => {
+      const cv = document.createElement('canvas');
+      cv.width = 640; cv.height = 760;
+      const g = cv.getContext('2d');
+      g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height);
+      g.drawImage(img, 40, 40, 560, 560);
+      g.fillStyle = '#0a153e'; g.textAlign = 'center';
+      g.font = '600 34px "IBM Plex Sans", sans-serif'; g.fillText(title, 320, 660);
+      g.font = '24px "IBM Plex Mono", monospace'; g.fillStyle = '#4a5168'; g.fillText(sub, 320, 705);
+      const a = document.createElement('a');
+      a.href = cv.toDataURL('image/png');
+      a.download = file;
+      a.click();
+    };
+    img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  };
 
   /* ---------- Print ---------- */
   UI.print = (html) => {

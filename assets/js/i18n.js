@@ -11,7 +11,8 @@
   let lang = 'en';
   try { lang = localStorage.getItem('desco.lang') === 'bn' ? 'bn' : 'en'; } catch (e) { /* per-viewer preference only */ }
   D.lang = () => lang;
-  D.setLang = (l) => { lang = l === 'bn' ? 'bn' : 'en'; try { localStorage.setItem('desco.lang', lang); } catch (e) { /* ignore */ } };
+  /** `keep: false` switches language for this page only (the admin panel is English-only). */
+  D.setLang = (l, keep = true) => { lang = l === 'bn' ? 'bn' : 'en'; if (keep) try { localStorage.setItem('desco.lang', lang); } catch (e) { /* ignore */ } };
   D.digits = (s) => (lang === 'bn' ? String(s).replace(/\d/g, (d) => BN_DIGITS[d]) : String(s));
 
   /* ---------- Formatters ---------- */

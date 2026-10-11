@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DESCO Admin</title>
+  <meta name="description" content="DESCO back office: monthly bill generation, prepaid Bangla QR, reconciliation and history.">
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="assets/js/tailwind.config.js"></script>
+</head>
+
+<body class="admin min-h-screen bg-paper font-sans text-ink antialiased">
+  <a href="#view" class="sr-only z-[80] rounded-md bg-brand px-3 py-2 text-white focus:not-sr-only focus:fixed focus:left-3 focus:top-3">Skip to content</a>
+
+  <!-- Sign-in renders here when there is no session -->
+  <div id="auth-root"></div>
+
+  <div id="shell" hidden class="min-h-screen lg:pl-sidebar">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 hidden w-sidebar flex-col bg-brand-900 text-white lg:flex" aria-label="Admin">
+      <a href="#/dashboard" class="flex items-center gap-3 px-5 pb-5 pt-6">
+        <span class="inline-flex rounded-md bg-white px-2.5 py-2"><img src="assets/img/logo-desco.svg" alt="DESCO" class="h-5 w-auto"></span>
+        <span class="text-[12px] font-semibold uppercase tracking-[0.14em] text-white/60">Admin</span>
+      </a>
+      <nav id="sidenav" class="flex flex-1 flex-col gap-1 px-3" aria-label="Main"></nav>
+      <div id="side-user" class="border-t border-white/10 px-3 py-4"></div>
+    </aside>
+
+    <header id="topbar" class="sticky top-0 z-30 border-b border-line bg-surface/90 backdrop-blur-md lg:hidden">
+      <div class="flex h-14 items-center gap-3 px-4">
+        <img src="assets/img/logo-desco.svg" alt="DESCO" class="h-6 w-auto">
+        <span class="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-3">Admin</span>
+        <button class="btn btn-ghost btn-sm ml-auto" data-logout>Sign out</button>
+      </div>
+      <nav id="tabnav" class="scroll-thin flex gap-1 overflow-x-auto px-3 pb-2" aria-label="Main"></nav>
+    </header>
+
+    <main id="view" tabindex="-1" class="outline-none"></main>
+  </div>
+
+  <div id="modal-root"></div>
+  <div id="toast-root" class="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-[min(24rem,calc(100vw-2rem))] flex-col gap-2" aria-live="polite"></div>
+  <div id="tooltip" class="rounded-md bg-brand-950 px-2.5 py-1.5 text-xs text-white shadow-pop"></div>
+  <div id="print-root"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/admin/store.js"></script>
+  <script src="assets/js/admin/suggest.js"></script>
+  <script src="assets/js/admin/views/login.js"></script>
+  <script src="assets/js/admin/views/dashboard.js"></script>
+  <script src="assets/js/admin/views/bill-gen.js"></script>
+  <script src="assets/js/admin/views/prepaid-qr.js"></script>
+  <script src="assets/js/admin/views/recon.js"></script>
+  <script src="assets/js/admin/views/history.js"></script>
+  <script src="assets/js/admin/app.js"></script>
+</body>
+</html>

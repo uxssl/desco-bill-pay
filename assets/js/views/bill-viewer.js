@@ -6,18 +6,6 @@
   const U = D.u; const UI = D.ui; const S = D.store; const t = D.t;
   const vs = { zoom: null }; // zoom null = fit to width
 
-  /** Scannable QR as inline SVG (4-module quiet zone). */
-  D.qrSVG = (text, cls = '') => {
-    if (typeof qrcode !== 'function') return `<svg viewBox="0 0 10 10" class="${cls}" role="img" aria-label="QR unavailable"><rect width="10" height="10" fill="#eee"/></svg>`;
-    const q = qrcode(0, 'M');
-    q.addData(text);
-    q.make();
-    const n = q.getModuleCount();
-    let d = '';
-    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`;
-    return `<svg viewBox="-4 -4 ${n + 8} ${n + 8}" class="${cls}" shape-rendering="crispEdges" role="img" aria-label="Payment QR code"><rect x="-4" y="-4" width="${n + 8}" height="${n + 8}" fill="#fff"/><path d="${d}" fill="#0a153e"/></svg>`;
-  };
-
   /** The bill's payment QR — configured image, or a generated per-bill code. */
   D.qrMarkup = (b, amount, cls = '') => (D.QR.image
     ? `<img src="${D.QR.image}" alt="Payment QR code" class="${cls}" draggable="false">`
@@ -27,23 +15,7 @@
   function saveQR(b, amount) {
     const file = D.QR.card || D.QR.image;
     if (file) { const a = document.createElement('a'); a.href = file; a.download = `DESCO-QR-${b.no}${file.slice(file.lastIndexOf('.'))}`; a.click(); return; }
-    const svg = D.qrSVG(D.QR.payload(b, amount)).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="560" height="560" ');
-    const img = new Image();
-    img.onload = () => {
-      const cv = document.createElement('canvas');
-      cv.width = 640; cv.height = 760;
-      const g = cv.getContext('2d');
-      g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height);
-      g.drawImage(img, 40, 40, 560, 560);
-      g.fillStyle = '#0a153e'; g.textAlign = 'center';
-      g.font = '600 34px "IBM Plex Sans", sans-serif'; g.fillText(`DESCO · BDT ${U.raw.n(amount)}`, 320, 660);
-      g.font = '24px "IBM Plex Mono", monospace'; g.fillStyle = '#4a5168'; g.fillText(`Bill ${b.no} · A/C ${b.account}`, 320, 705);
-      const a = document.createElement('a');
-      a.href = cv.toDataURL('image/png');
-      a.download = `DESCO-QR-${b.no}.png`;
-      a.click();
-    };
-    img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    UI.qrPNG({ text: D.QR.payload(b, amount), title: `DESCO · BDT ${U.raw.n(amount)}`, sub: `Bill ${b.no} · A/C ${b.account}`, file: `DESCO-QR-${b.no}.png` });
   }
 
   const SIGN = '<svg viewBox="0 0 120 38" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 28c6-14 10-20 12-18s-6 20-2 20 8-16 12-16-2 12 2 12 6-8 9-8 1 6 5 6 6-10 10-10-2 8 3 8c6 0 10-6 16-6s8 4 14 2 10-8 16-8"/><path d="M30 33c20-3 46-4 80-6"/></svg>';

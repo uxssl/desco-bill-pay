@@ -20,6 +20,8 @@
   D.QR = {
     image: 'assets/img/qr.png', // static QR shown on every bill; set to null to generate a per-bill QR from payload()
     card: 'assets/img/bangla-qr.jpg', // full Bangla QR card shown when the customer opens the QR to scan
+    // Card design for generated (dynamic) QRs: the code is drawn over the card's QR box (px on the 635×980 image)
+    template: { image: 'assets/img/bangla-qr.jpg', w: 635, h: 980, box: { x: 111, y: 250, size: 412 }, logo: 'assets/img/qr-logo.png', logoRatio: 0.22 },
     payload: (b, amount) => `https://payments.example/desco/bill?no=${b.no}&acc=${b.account}&amt=${amount}`,
     apps: ['bKash', 'Nagad', 'Rocket', 'Upay', 'Bank apps'],
   };
