@@ -83,13 +83,16 @@
   const qrLines = (q) => [`BDT ${U.raw.n(q.amount)} · Prepaid recharge`, `Customer ${q.account} · Reference ${q.id}`, `Valid until ${U.fmtDate(q.expires)} ${U.fmtTime(q.expires)}`];
 
   function openQR(q, m) {
-    const footer = `<button class="btn btn-secondary" data-dl>${UI.icon('download')}Download</button><button class="btn btn-secondary" data-print>${UI.icon('printer')}Print</button><button class="btn btn-primary" data-close>Done</button>`;
+    const pending = A.qrStatus(q).key === 'pending';
+    const footer = `${pending ? `<button class="btn btn-ghost mr-auto" data-new-qr>${UI.icon('plus')}Generate new QR</button>` : ''}<button class="btn btn-secondary" data-dl>${UI.icon('download')}Download</button><button class="btn btn-secondary" data-print>${UI.icon('printer')}Print</button><button class="btn btn-primary" data-close>Done</button>`;
     const title = 'Dynamic Bangla QR';
     const sub = `Prepaid · ${q.account}`;
     if (m) {
       m.panel.classList.replace('sm:max-w-md', 'sm:max-w-3xl');
       m.setTitle(title, sub); m.setBody(qrBody(q)); m.setFooter(footer);
     } else m = UI.modal({ title, subtitle: sub, size: 'lg', body: qrBody(q), footer, onClose: () => D.refresh() });
+    const again = m.el.querySelector('[data-new-qr]');
+    if (again) again.onclick = () => { m.close(); genModal(q.account); }; // the generate dialog still warns about this open QR
     m.el.querySelector('[data-dl]').onclick = () => UI.qrCardPNG({ text: A.qrPayload(q), lines: qrLines(q), file: `DESCO-QR-${q.id}.png` });
     m.el.querySelector('[data-print]').onclick = () => UI.print(`
       <div class="receipt-doc text-center">
@@ -232,25 +235,24 @@
           <div class="-mt-10 pb-8 text-center"><button class="btn btn-secondary btn-sm" data-reset>Show all customers</button></div>` : `
         <div class="scroll-thin overflow-x-auto">
           <table class="tbl tbl-stack">
-            <thead><tr><th class="c-idx">#</th><th>Customer</th><th>Meter number</th><th>Book</th><th>Latest QR</th><th class="c-actions">Action</th></tr></thead>
+            <thead><tr><th>Customer</th><th>Meter number</th><th>Latest QR</th><th class="r">Amount</th><th class="c-actions">Action</th></tr></thead>
             <tbody>
-              ${rows.map((c, i) => {
+              ${rows.map((c) => {
                 const last = A.qrsOf(c.account)[0];
                 const s = last && A.qrStatus(last);
                 const waiting = s?.key === 'pending';
                 return `<tr class="${waiting ? 'is-attention' : ''}">
-                  <td class="c-idx num">${(st.page - 1) * PER + i + 1}</td>
-                  <td class="c-main" data-label="Customer">${D.cell(U.esc(c.name), `<span class="block max-w-[15rem] truncate"><span class="num">${c.account}</span> · ${U.esc(c.address)}</span>`)}</td>
+                  <td class="c-main" data-label="Customer">${D.cell(U.esc(c.name), `<span class="num">${c.account}</span> · Book <span class="num">${c.book}</span>`)}</td>
                   <td class="num text-ink-2" data-label="Meter number">${c.meter}</td>
-                  <td class="num text-ink-2" data-label="Book">${c.book}</td>
-                  <td data-label="Latest QR">${last
-                    ? D.cell(`<span class="flex items-center gap-2"><span class="num">${U.tk(last.amount)}</span>${UI.badge(s.label, s.tone)}</span>`, waiting ? `Valid until ${U.fmtShort(last.expires)}, ${U.fmtTime(last.expires)}` : U.fmtDate(last.at))
-                    : '<span class="text-xs text-ink-3">No QR yet</span>'}</td>
-                  <td class="c-actions"><div class="inline-flex items-center gap-1.5">
-                    ${waiting
-                      ? `<button class="btn btn-secondary btn-xs" data-view="${last.id}">${UI.icon('eye')}Show QR</button><button class="btn btn-ghost btn-xs" data-gen="${c.account}">${UI.icon('plus')}Generate new QR</button>`
-                      : `${last ? `<button class="btn btn-ghost btn-xs" data-view="${last.id}">${UI.icon('eye')}View</button>` : ''}<button class="btn btn-primary btn-xs" data-gen="${c.account}">${UI.icon('zap')}Generate QR</button>`}
-                  </div></td>
+                  <td data-label="Latest QR">${last ? `
+                    <button type="button" class="group -mx-1.5 inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-left hover:bg-surface-3" data-view="${last.id}" aria-label="Open the latest QR, ${U.tk(last.amount)}, ${s.label}">
+                      ${UI.badge(s.label, s.tone)}${UI.icon('chevR', 'h-3.5 w-3.5 text-ink-3 opacity-0 transition-opacity group-hover:opacity-100')}
+                    </button>${waiting ? `<div class="c-sub">Valid until ${U.fmtShort(last.expires)}, ${U.fmtTime(last.expires)}</div>` : ''}`
+                    : '<span class="text-[13px] text-ink-3">No QR yet</span>'}</td>
+                  <td class="num r" data-label="Amount">${last ? `<span class="font-medium">${U.tk(last.amount)}</span>` : '<span class="text-ink-3">—</span>'}</td>
+                  <td class="c-actions">${waiting
+                    ? `<button class="btn btn-secondary btn-xs" data-view="${last.id}">${UI.icon('eye')}Show QR</button>`
+                    : `<button class="btn btn-primary btn-xs" data-gen="${c.account}">${UI.icon('zap')}Generate QR</button>`}</td>
                 </tr>`;
               }).join('')}
             </tbody>
