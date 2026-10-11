@@ -246,8 +246,6 @@
     'Check the amount, then confirm with your PIN': 'টাকার পরিমাণ মিলিয়ে PIN দিয়ে নিশ্চিত করুন',
     'Works with': 'যেসব অ্যাপে চলে',
     'Open QR to scan': 'স্ক্যান করতে QR খুলুন',
-    'Click QR to scan': 'স্ক্যান করতে QR-এ ক্লিক করুন',
-    'Click the QR on the bill to open it full size, then scan it with your app.': 'বিলের QR-এ ক্লিক করে পূর্ণ আকারে খুলুন, তারপর অ্যাপ দিয়ে স্ক্যান করুন।',
     'Open the QR full size and scan it from your app': 'QR পূর্ণ আকারে খুলে অ্যাপ দিয়ে স্ক্যান করুন',
     'Enter the amount shown here, then confirm with your PIN': 'এখানে দেখানো টাকার পরিমাণ লিখে PIN দিয়ে নিশ্চিত করুন',
     'Enter this amount in your app': 'অ্যাপে এই পরিমাণ লিখুন',

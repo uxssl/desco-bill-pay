@@ -49,25 +49,16 @@
   const SIGN = '<svg viewBox="0 0 120 38" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 28c6-14 10-20 12-18s-6 20-2 20 8-16 12-16-2 12 2 12 6-8 9-8 1 6 5 6 6-10 10-10-2 8 3 8c6 0 10-6 16-6s8 4 14 2 10-8 16-8"/><path d="M30 33c20-3 46-4 80-6"/></svg>';
 
   /** Full bill document markup (also used for thumbnails and printing). */
-  /** Bills that come as a scanned copy: shown exactly as issued, payment QR placed over the printed QR. */
-  // % of the scan, measured on bill-copy.jpg: covers the QR in the scan (≈ x 1523–1643, y 0–120 px) — from the top edge
-  // down to the Tariff box's top rule (y 121), sitting on it, clear of "Hotline" and "(Office Copy)". Click opens it full size.
-  const COPY_QR_BOX = { left: 76.08, top: 0, width: 6.12, height: 8.64 };
-  function billCopyHTML(b, live) {
-    const q = COPY_QR_BOX;
-    const box = `left:${q.left}%;top:${q.top}%;width:${q.width}%;height:${q.height}%`;
-    const qr = `<img src="${D.QR.image}" alt="" draggable="false">`;
+  /** Bills that come as a scanned copy: shown exactly as issued. */
+  function billCopyHTML(b) {
     return `
       <article class="bill-copy" aria-label="Electricity bill ${b.no}">
         <img src="${b.image}" alt="Electricity bill ${b.no}" class="bill-copy-scan" draggable="false">
-        ${D.QR.image ? (live
-          ? `<button type="button" class="bill-copy-qr ${S.status(b).key !== 'paid' ? 'qr-live' : ''}" style="${box}" data-qr aria-label="${t('Payment QR — tap to enlarge')}">${qr}${S.status(b).key !== 'paid' ? `<span class="qr-tag">${t('Click QR to scan')}</span>` : ''}</button>`
-          : `<span class="bill-copy-qr" style="${box}">${qr}</span>`) : ''}
       </article>`;
   }
 
   D.billDocHTML = (b, { copy = 'customer', stamp = false, live = false } = {}) => {
-    if (b.image) return billCopyHTML(b, live);
+    if (b.image) return billCopyHTML(b);
     const c = S.consumer(b.account);
     const div = D.division(c.division);
     const s = S.status(b);
@@ -103,7 +94,7 @@
         <p class="bd-slogan">“দেশ প্রেমের শপথ নিন, দুর্নীতিকে বিদায় দিন”</p>
         <span class="bd-hot">Hotline: 16120</span>
         <div class="bd-copy">${live && s.key !== 'paid'
-          ? `<button type="button" class="bd-qr qr-live" data-qr aria-label="${t('Payment QR — tap to enlarge')}">${D.qrMarkup(b, qrAmount)}<span class="qr-tag">${t('Click QR to scan')}</span></button>`
+          ? `<button type="button" class="bd-qr" data-qr aria-label="${t('Payment QR — tap to enlarge')}">${D.qrMarkup(b, qrAmount)}</button>`
           : D.qrMarkup(b, qrAmount)}<span>(${copy === 'office' ? 'Office' : 'Customer'} Copy)</span></div>
       </div>
 
@@ -218,7 +209,6 @@
           <div class="text-[11px] text-ink-3">${s.lpsApplied ? t('Includes late fee {fee}', { fee: U.tk(b.lps) }) : t('Pay by {date}', { date: U.fmtDate(b.due) })}</div>
         </div>
         <button class="btn btn-primary mt-3 h-12 w-full text-[14px]" data-qr>${UI.icon('zoomIn')}${t('Open QR to scan')}</button>
-        <p class="mt-2 text-center text-[11.5px] text-ink-3">${t('Click the QR on the bill to open it full size, then scan it with your app.')}</p>
         ${!s.lpsApplied ? `<p class="mt-3 text-xs text-ink-3">${t(D.QR.image ? 'After {date} the amount becomes {amt}.' : 'After {date} the amount becomes {amt} and a new QR is shown.', { date: U.fmtDate(b.due), amt: U.tk(b.total + b.lps) })}</p>` : ''}
         ${olderOpen.length ? `<p class="mt-3 rounded-md bg-warn-soft px-3 py-2 text-xs text-warn">${t('This account also has an older unpaid bill ({month}). Please pay it too.', { month: U.monthLabel(olderOpen[0].month) })} <a class="font-semibold underline" href="#/bills/${olderOpen[0].no}">${t('View bill')}</a></p>` : ''}
         ${s.critical ? `<p class="mt-3 rounded-md bg-danger-soft px-3 py-2 text-xs text-danger">${t('The disconnection date ({date}) has passed. Pay now to keep your supply connected.', { date: U.fmtDate(b.dcDate) })}</p>` : ''}
